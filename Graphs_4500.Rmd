@@ -10,20 +10,35 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## R Markdown
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+Below is my graphs for our debt project. The graph below is looking at a comparison between people of color and white people for median debt collections. Median debt collections is the average amount that people are behind on payments.
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+```{r}
+library(ggplot2)
+library(dplyr)
+library(readxl)
 
-```{r cars}
-summary(cars)
+#import the data
+Debt_2024 <- read_excel("dia_lbls_all_overall_usa_2023_1Jul2024.xlsx")
+View(Debt_2024)
+
+
+#rename the data
+names(Debt_2024) <- c("country", "share_with_debt_all", "share_with_debt_color", "share_with_debt_white", "median_debt_all", "median_debt_color", "median_debt_white", "medical_debt_all", "medical_debt_color", "medical_debt_white", "student_all", "student_color", "student_white", "auto_all", "auto_color", "auto_white", "creditcard_del_all", "creditcard_del_color", "creditcard_del_white", "median_creditcard_all", "median_creditcard_color", "median_creditcard_white", "share_color", "avg_house_income_color", "avg_house_income_white")
+
+#create a subset for the thing you want to look at
+subset_debt_2024 <- select(Debt_2024, median_debt_all, median_debt_color, median_debt_white)
+names(subset_debt_2024) <- c("All_People","People_of_Color", "White_People")
+View(subset_debt_2024)
+
+#create another subset in the long format
+subset_debt_2024_long <- tidyr::pivot_longer(subset_debt_2024, cols = everything(), names_to = "group", values_to = "median_debt")
+View(subset_debt_2024_long)
+
+
+#create the plot
+ggplot(subset_debt_2024_long, aes(x = group, y = median_debt, fill = group)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Comparison of Median Debt in Collection in the US", subtitle = "The average amount of money people are behind on payments", y = "Median Debt in Collections") +
+  theme_minimal()
 ```
 
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
