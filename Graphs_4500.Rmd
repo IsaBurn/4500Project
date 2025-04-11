@@ -16,6 +16,7 @@ Below is my graphs for our debt project. The graph below is looking at a compari
 library(ggplot2)
 library(dplyr)
 library(readxl)
+library(reshape2)
 
 #import the data
 Debt_2024 <- read_excel("dia_lbls_all_overall_usa_2023_1Jul2024.xlsx")
@@ -89,6 +90,58 @@ ggplot(top_five_states_with_student_loan_debt, aes(x = state_name, y = median_st
        x = "State",
        y = "Median Student Loan Debt (All)") +
   ylim(0, max(top_five_states_with_student_loan_debt$median_studentloan_debt_all) + 5000) +
+  theme_minimal()
+```
+
+Code for coloring the bars based off of people group
+```{r}
+melted_data <- melt(top_five_states_with_student_loan_debt, id.vars = "state_name", 
+                    measure.vars = c("median_studentloan_debt_color", "median_studentloan_debt_white"),
+                    variable.name = "Group", value.name = "Median_Student_Loan_Debt")
+
+melted_data$Median_Student_Loan_Debt <- as.numeric(as.character(melted_data$Median_Student_Loan_Debt))
+
+
+ggplot(melted_data, aes(x = state_name, y = Median_Student_Loan_Debt, fill = Group)) +
+  geom_bar(stat = "identity", position = "stack") +
+  geom_text(aes(label = Median_Student_Loan_Debt), position = position_stack(vjust = 0.5), size = 3) +
+  labs(title = "Median Student Loan Debt for Top Five States",
+       x = "State",
+       y = "Median Student Loan Debt") +
+  scale_fill_manual(values = c("median_studentloan_debt_color" = "skyblue", "median_studentloan_debt_white" = "orange"),
+                    labels = c("Colored People", "White People")) +
+  theme_minimal()
+```
+
+Now lets do the states with the most difference between colored people and white people
+```{r}
+#first create a column for the difference between median for colored people and white people
+subset_student_loan_debt$median_studentloan_debt_color <- as.numeric(as.character(subset_student_loan_debt$median_studentloan_debt_color))
+
+subset_student_loan_debt$median_studentloan_debt_white <- as.numeric(as.character(subset_student_loan_debt$median_studentloan_debt_white))
+
+subset_student_loan_debt$Difference <- subset_student_loan_debt$median_studentloan_debt_color - subset_student_loan_debt$median_studentloan_debt_white
+
+subset_student_loan_debt$Difference <- as.numeric(as.character(subset_student_loan_debt$Difference))
+
+sorted_data_for_biggest_diff <- subset_student_loan_debt |> arrange(desc(Difference))
+
+top_five_states_difference <- head(sorted_data_for_biggest_diff, 5)
+
+melted_data_difference <- melt(top_five_states_difference, id.vars = "state_name", 
+                    measure.vars = c("median_studentloan_debt_color", "median_studentloan_debt_white"),
+                    variable.name = "Group", value.name = "Median_Student_Loan_Debt_Diff")
+
+
+#now create the graph
+ggplot(melted_data_difference, aes(x = state_name, y = Median_Student_Loan_Debt_Diff, fill = Group)) +
+  geom_bar(stat = "identity", position = "stack") +
+  geom_text(aes(label = Median_Student_Loan_Debt_Diff), position = position_stack(vjust = 0.5), size = 3) +
+  labs(title = "Median Student Loan Debt for Top Five States with Greatest Difference",
+       x = "State",
+       y = "Median Student Loan Debt") +
+  scale_fill_manual(values = c("median_studentloan_debt_color" = "skyblue", "median_studentloan_debt_white" = "orange"),
+                    labels = c("Colored People", "White People")) +
   theme_minimal()
 ```
 
