@@ -89,3 +89,32 @@ ggplot(subset_income_2024_long, aes(x = group, y = avg_household_income, fill = 
 ```
 
 ![](Graphs_4500_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
+
+\#student debt by state
+
+``` r
+student_loan_debt_2023 <- read_excel("dia_lbls_all_student_state_2023_1Jul2024.xlsx")
+
+names(student_loan_debt_2023) <- c("state_FIPS", "state_name", "state_abbreviation", "share_with_studentloan_debt_all", "share_with_studentloan_debt_color", "share_with_studentloan_debt_white", "median_studentloan_debt_all", "median_studentloan_debt_color", "median_studentloan_debt_white", "share_of_holders_with_debt_all", "share_of_holders_with_debt_color", "share_of_holders_with_debt_white", "median_loan_debt_in_default_all", "median_loan_debt_in_default_color", "median_loan_debt_in_default_white", "median_monthly_studentloan_payment_all", "median_monthly_studentloan_payment_color", "median_monthly_studentloan_payment_white", "share_without_bachelors_all", "share_without_bachelors_color", "share_without_bachelors_white", "share_of_people_of_color", "average_household_income_all", "average_household_income_color", "average_household_income_white")
+
+subset_student_loan_debt <- select(student_loan_debt_2023, state_FIPS, state_name, state_abbreviation, median_studentloan_debt_all, median_studentloan_debt_color, median_studentloan_debt_white)
+
+subset_student_loan_debt$median_studentloan_debt_all <- as.numeric(as.character(subset_student_loan_debt$median_studentloan_debt_all))
+
+#sort the data in descending order and find top 5 states with the highest median student loan debt
+sorted_student_loan_data <- subset_student_loan_debt |> arrange(desc(median_studentloan_debt_all))
+
+top_five_states_with_student_loan_debt <- head(sorted_student_loan_data, 5)
+
+
+#create a bar chart comparing these top 5 states
+ggplot(top_five_states_with_student_loan_debt, aes(x = state_name, y = median_studentloan_debt_all)) +
+  geom_bar(stat = "identity", fill = "skyblue") +
+  labs(title = "Median Student Loan Debt for Top Five States",
+       x = "State",
+       y = "Median Student Loan Debt (All)") +
+  ylim(0, max(top_five_states_with_student_loan_debt$median_studentloan_debt_all) + 5000) +
+  theme_minimal()
+```
+
+![](Graphs_4500_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
