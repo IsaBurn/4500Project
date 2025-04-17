@@ -45,6 +45,19 @@ library(reshape2)
     ## Warning: package 'reshape2' was built under R version 4.2.3
 
 ``` r
+library(tidyr)
+```
+
+    ## Warning: package 'tidyr' was built under R version 4.2.3
+
+    ## 
+    ## Attaching package: 'tidyr'
+
+    ## The following object is masked from 'package:reshape2':
+    ## 
+    ##     smiths
+
+``` r
 #import the data
 Debt_2024 <- read_excel("dia_lbls_all_overall_usa_2023_1Jul2024.xlsx")
 
@@ -112,20 +125,29 @@ sorted_student_loan_data <- subset_student_loan_debt |> arrange(desc(median_stud
 
 top_five_states_with_student_loan_debt <- head(sorted_student_loan_data, 5)
 
+#change format to long
+
+top_five_student_loans_long <- top_five_states_with_student_loan_debt |>
+  pivot_longer(cols = c(median_studentloan_debt_white, median_studentloan_debt_color), names_to = "Group", values_to = "Median_Loan")
+
+
+top_five_student_loans_long$Median_Loan <- as.numeric(as.character(top_five_student_loans_long$Median_Loan))
 
 #create a bar chart comparing these top 5 states
-ggplot(top_five_states_with_student_loan_debt, aes(x = state_name, y = median_studentloan_debt_all)) +
-  geom_bar(stat = "identity", fill = "skyblue") +
-  labs(title = "Median Student Loan Debt for Top Five States",
-       x = "State",
-       y = "Median Student Loan Debt (All)") +
-  ylim(0, max(top_five_states_with_student_loan_debt$median_studentloan_debt_all) + 5000) +
-  theme_minimal()
+
+ggplot(top_five_student_loans_long, aes(x = state_name, y = Median_Loan, fill = Group)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(title = "Median Student Loans by State",
+ x = "State",
+ y = "Median Student Loan",
+ fill = "Group") +
+  scale_y_continuous(limits = c(0, NA)) +
+ theme_minimal()
 ```
 
 ![](Graphs_4500_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
 
-Code for coloring the bars based off of people group
+Code for coloring the bars based off of people group (DONT USE)
 
 ``` r
 melted_data <- melt(top_five_states_with_student_loan_debt, id.vars = "state_name", 
@@ -165,6 +187,10 @@ subset_student_loan_debt$Difference <- subset_student_loan_debt$median_studentlo
 
 subset_student_loan_debt$Difference <- as.numeric(as.character(subset_student_loan_debt$Difference))
 
+
+subset_student_loan_debt$Difference <- abs(subset_student_loan_debt$Difference)
+
+
 sorted_data_for_biggest_diff <- subset_student_loan_debt |> arrange(desc(Difference))
 
 top_five_states_difference <- head(sorted_data_for_biggest_diff, 5)
@@ -174,16 +200,37 @@ melted_data_difference <- melt(top_five_states_difference, id.vars = "state_name
                     variable.name = "Group", value.name = "Median_Student_Loan_Debt_Diff")
 
 
-#now create the graph
+
+#real graph
 ggplot(melted_data_difference, aes(x = state_name, y = Median_Student_Loan_Debt_Diff, fill = Group)) +
-  geom_bar(stat = "identity", position = "stack") +
-  geom_text(aes(label = Median_Student_Loan_Debt_Diff), position = position_stack(vjust = 0.5), size = 3) +
-  labs(title = "Median Student Loan Debt for Top Five States with Greatest Difference",
-       x = "State",
-       y = "Median Student Loan Debt") +
-  scale_fill_manual(values = c("median_studentloan_debt_color" = "skyblue", "median_studentloan_debt_white" = "orange"),
-                    labels = c("Colored People", "White People")) +
-  theme_minimal()
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(title = "Median Student Loans by State", subtitle = "Top 5 states with the greatest difference between people groups",
+ x = "State",
+ y = "Median Student Loan",
+ fill = "Group") +
+  scale_y_continuous(limits = c(0, NA)) +
+ theme_minimal()
 ```
 
 ![](Graphs_4500_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+
+This next section is looking at some statistics by race over time.
+
+``` r
+library(readr)
+```
+
+    ## Warning: package 'readr' was built under R version 4.2.3
+
+``` r
+long_term_student_debt <- read_csv("interactive_bulletin_charts_racecl4_have.csv")
+```
+
+    ## Rows: 48 Columns: 37
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: ","
+    ## chr  (1): Category
+    ## dbl (36): year, Before_Tax_Income, Net_Worth, Assets, Financial_Assets, Tran...
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
