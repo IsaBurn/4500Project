@@ -214,7 +214,8 @@ ggplot(melted_data_difference, aes(x = state_name, y = Median_Student_Loan_Debt_
 
 ![](Graphs_4500_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
 
-This next section is looking at some statistics by race over time.
+This next section is looking at some statistics by race over time. This
+graph is for percent of people holding student loans
 
 ``` r
 library(readr)
@@ -234,3 +235,65 @@ long_term_student_debt <- read_csv("interactive_bulletin_charts_racecl4_have.csv
     ## 
     ## ℹ Use `spec()` to retrieve the full column specification for this data.
     ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+``` r
+long_term_student_debt$year <- as.numeric(long_term_student_debt$year)
+long_term_student_debt$Education_Installment_Loans <- as.numeric(long_term_student_debt$Education_Installment_Loans)
+
+#create the graph for percent holding student loans
+
+
+ggplot(long_term_student_debt, aes(x = year, y = Education_Installment_Loans, color = Category, shape = Category)) +
+  geom_line(size = 1.2) +
+  geom_point(size = 2) +
+  labs(title = "Percent Holding Student Loan Debt by Race or Ethnicity",
+       x = "Year",
+       y = "% Holding Installment Loans") +
+  theme_minimal() +
+  theme(legend.title = element_blank()) +
+  scale_x_continuous(breaks = seq(1989, 2022, by = 3)) +
+  scale_y_continuous(breaks = seq(0, max(long_term_student_debt$Education_Installment_Loans), by = 5))
+```
+
+    ## Warning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
+    ## ℹ Please use `linewidth` instead.
+    ## This warning is displayed once every 8 hours.
+    ## Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
+    ## generated.
+
+![](Graphs_4500_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+
+Looking at more trends over time. This one is median \$ in thousands of
+dollars of student loan debt
+
+``` r
+data_over_time_student_median <- read_csv("interactive_bulletin_charts_racecl4_median.csv")
+```
+
+    ## Rows: 48 Columns: 37
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: ","
+    ## chr  (1): Category
+    ## dbl (36): year, Before_Tax_Income, Net_Worth, Assets, Financial_Assets, Tran...
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+``` r
+data_over_time_student_median$year <- as.numeric(data_over_time_student_median$year)
+data_over_time_student_median$Education_Installment_Loans <- as.numeric(data_over_time_student_median$Education_Installment_Loans)
+
+#create graph
+ggplot(data_over_time_student_median, aes(x = year, y = Education_Installment_Loans, color = Category, shape = Category)) +
+  geom_line(size = 1.2) +
+  geom_point(size = 2) +
+  labs(title = "Median Education Installment Loans by Race or Ethnicity",
+       x = "Year",
+       y = "Median Student Loans (thousands of $)") +
+  theme_minimal() +
+  theme(legend.title = element_blank()) +
+  scale_x_continuous(breaks = seq(1989, 2022, by = 3)) +
+  scale_y_continuous(breaks = seq(0, max(data_over_time_student_median$Education_Installment_Loans), by = 5))
+```
+
+![](Graphs_4500_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
