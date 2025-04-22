@@ -69,4 +69,53 @@ big_dataset_dependency_and_income <- big_dataset[20:32, ]
 big_dataset_housing <- big_dataset[33:36, ]
 ```
 
-The next step is to do this for another year of data and merge
+
+In the section below I am taking another data set that had all the years and different aid for different types of institutions.
+
+```{r}
+timeline_dataset <- read_excel("timeline_dataset.xlsx", 
+      skip = 5)
+
+#get rid of na rows
+timeline_dataset <- timeline_dataset[-c(23, 34, 45, 56, 67, 78, 89, 100, 111, 122, 123,124, 125, 126), ]
+
+#rename
+names(timeline_dataset) <- c("year", "number_enrolled", "number_awarded_aid", "percent_awarded_aid", "percent_federal", "percent_state_local_grants", "percent_institutional_grants", "percent_student_loans", "dollars_federal", "dollars_state_local_grants", "dollars_institutional_grants", "dollars_student_loans", "constant_federal", "constant_state_local_grants", "constant_institutional", "constant_loans")
+
+#create subsets
+#subset for all institutions
+timeline_dataset_all_institutions <- timeline_dataset[1:22, ]
+
+#subset for public institutions
+timeline_dataset_public_institutions <- timeline_dataset[23:52, ]
+
+#subset for private non-profit 
+timeline_dataset_private_nonprofit <- timeline_dataset[53:82, ]
+
+#subset for private for-profit 
+timeline_dataset_private_forprofit <- timeline_dataset[83:112, ]
+
+#for each subset add the columns with 4-year or 2-year for public institutions 
+timeline_dataset_public_institutions <- timeline_dataset_public_institutions %>% mutate(type = c("all", "all", "all", "all", "all", "all", "all", "all", "all", "all", "4_year", "4_year", "4_year", "4_year", "4_year", "4_year", "4_year", "4_year", "4_year", "4_year", "2_year", "2_year", "2_year", "2_year", "2_year", "2_year", "2_year", "2_year", "2_year", "2_year"))
+
+#for each subset add the columns with 4-year or 2-year or all for private non-profit 
+timeline_dataset_private_nonprofit <- timeline_dataset_private_nonprofit %>% mutate(type = c("all", "all", "all", "all", "all", "all", "all", "all", "all", "all", "4_year", "4_year", "4_year", "4_year", "4_year", "4_year", "4_year", "4_year", "4_year", "4_year", "2_year", "2_year", "2_year", "2_year", "2_year", "2_year", "2_year", "2_year", "2_year", "2_year"))
+
+#for each subset add the columns with 4-year or 2-year or all for private for-profit 
+timeline_dataset_private_forprofit <- timeline_dataset_private_forprofit %>% mutate(type = c("all", "all", "all", "all", "all", "all", "all", "all", "all", "all", "4_year", "4_year", "4_year", "4_year", "4_year", "4_year", "4_year", "4_year", "4_year", "4_year", "2_year", "2_year", "2_year", "2_year", "2_year", "2_year", "2_year", "2_year", "2_year", "2_year"))
+```
+
+
+Lets see if we can create some visuals from this
+```{r}
+#first just a graph of how student loans have changed over time.
+
+ggplot(timeline_dataset_all_institutions, aes(x = year, y = dollars_student_loans)) +
+  geom_line(color = "blue") +
+  labs(title = "Student Loans Over Time",
+       x = "Year",
+       y = "Student Loans") +
+  theme_minimal()
+
+```
+
