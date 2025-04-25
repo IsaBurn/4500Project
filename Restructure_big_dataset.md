@@ -55,6 +55,33 @@ library(tidyr)
     ##     smiths
 
 ``` r
+library(shiny)
+```
+
+    ## Warning: package 'shiny' was built under R version 4.2.3
+
+``` r
+library(plotly)
+```
+
+    ## Warning: package 'plotly' was built under R version 4.2.3
+
+    ## 
+    ## Attaching package: 'plotly'
+
+    ## The following object is masked from 'package:ggplot2':
+    ## 
+    ##     last_plot
+
+    ## The following object is masked from 'package:stats':
+    ## 
+    ##     filter
+
+    ## The following object is masked from 'package:graphics':
+    ## 
+    ##     layout
+
+``` r
 #import the data
 tabn331_10 <- read_excel("tabn331.10.xlsx", 
       skip = 4, n_max = 43)
@@ -112,7 +139,7 @@ etc.
 #dataset for gender
 big_dataset_gender <- big_dataset[2:4, ]
 
-#dataset for 
+#dataset for race
 big_dataset_race <- big_dataset[5:11, ]
 
 #for age
@@ -130,6 +157,214 @@ big_dataset_dependency_and_income <- big_dataset[20:32, ]
 #for housing status
 big_dataset_housing <- big_dataset[33:36, ]
 ```
+
+Now I need to import and try to merge the data
+
+``` r
+table_for_2015 <- read_excel("table_for_2015.xls", 
+      skip = 4)
+```
+
+    ## New names:
+    ## • `` -> `...4`
+    ## • `` -> `...6`
+    ## • `` -> `...8`
+    ## • `` -> `...10`
+    ## • `` -> `...12`
+    ## • `` -> `...14`
+    ## • `` -> `...16`
+    ## • `` -> `...18`
+    ## • `` -> `...20`
+    ## • `` -> `...22`
+    ## • `` -> `...23`
+
+``` r
+table_for_2015 <- table_for_2015[-c(2, 5, 6, 12, 15, 16, 20, 21, 25, 26, 29, 30, 31, 45, 46, 48, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61), ]
+
+names(table_for_2015) <- c("category", "total_in_thousands", "total_anyaid", "se_total_anyaid", "federal_anyaid", "se_federal_anyaid", "nonfederal_anyaid", "se_nonfederal_anyaid", "total_grants", "se_total_grant", "federal_grants", "se_federal_grants", "nonfederal_grants", "se_nonfederal_grants", "total_loans", "se_total_loans", "federal_loans", "se_federal_loans", "nonfederal_loans", "se_nonfederal_loans", "total_workstudy","remove_2" ,"se_total_workstudy")
+
+table_for_2015 <- table_for_2015[, !names(table_for_2015) %in% "remove_2"]
+
+table_for_2015 <- table_for_2015 %>% mutate(year = "2015-16")
+
+#dataset for gender
+table_for_2015_gender <- table_for_2015[2:3, ]
+
+#dataset for 
+table_for_2015_race <- table_for_2015[4:10, ]
+
+#for age
+table_for_2015_age <- table_for_2015[11:13, ]
+
+#for marital status
+table_for_2015_marital <- table_for_2015[14:16, ]
+
+#for attendance status
+table_for_2015_attendance <- table_for_2015[17:18, ]
+
+#for dependency status and income (income by dependency status)
+table_for_2015_dependency_and_income <- table_for_2015[19:31, ]
+
+#for housing status
+table_for_2015_housing <- table_for_2015[32:34, ]
+
+#testing the merge
+merged_df <- bind_rows(table_for_2015_gender, big_dataset_gender)
+```
+
+merge another year
+
+``` r
+table_for_2011 <- read_excel("table_for_2011.xlsx", 
+      skip = 4)
+```
+
+    ## New names:
+    ## • `` -> `...4`
+    ## • `` -> `...6`
+    ## • `` -> `...8`
+    ## • `` -> `...10`
+    ## • `` -> `...12`
+    ## • `` -> `...14`
+    ## • `` -> `...16`
+    ## • `` -> `...18`
+    ## • `` -> `...20`
+    ## • `` -> `...22`
+    ## • `` -> `...23`
+
+``` r
+table_for_2011 <- table_for_2011[-c(2, 5, 6, 12, 15, 16, 20, 21, 25, 26, 29, 30, 31, 45, 46, 48, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61), ]
+
+names(table_for_2011) <- c("category", "total_in_thousands", "total_anyaid", "se_total_anyaid", "federal_anyaid", "se_federal_anyaid", "nonfederal_anyaid", "se_nonfederal_anyaid", "total_grants", "se_total_grant", "federal_grants", "se_federal_grants", "nonfederal_grants", "se_nonfederal_grants", "total_loans", "se_total_loans", "federal_loans", "se_federal_loans", "nonfederal_loans", "se_nonfederal_loans", "total_workstudy","remove_2" ,"se_total_workstudy")
+
+table_for_2011 <- table_for_2011[, !names(table_for_2011) %in% "remove_2"]
+
+table_for_2011 <- table_for_2011 %>% mutate(year = "2011-12")
+
+#dataset for gender
+table_for_2011_gender <- table_for_2011[2:3, ]
+
+#dataset for 
+table_for_2011_race <- table_for_2011[4:10, ]
+
+#for age
+table_for_2011_age <- table_for_2011[11:13, ]
+
+#for marital status
+table_for_2011_marital <- table_for_2011[14:16, ]
+
+#for attendance status
+table_for_2011_attendance <- table_for_2011[17:18, ]
+
+#for dependency status and income (income by dependency status)
+table_for_2011_dependency_and_income <- table_for_2011[19:31, ]
+
+#for housing status
+table_for_2011_housing <- table_for_2011[32:34, ]
+
+merged_2011_through_2022 <- bind_rows(merged_df, table_for_2011_gender)
+```
+
+Merge the final years
+
+``` r
+table_for_2007 <- read_excel("table_for_2007.xlsx", 
+      skip = 4)
+```
+
+    ## New names:
+    ## • `` -> `...4`
+    ## • `` -> `...6`
+    ## • `` -> `...8`
+    ## • `` -> `...10`
+    ## • `` -> `...12`
+    ## • `` -> `...13`
+    ## • `` -> `...15`
+    ## • `` -> `...17`
+    ## • `` -> `...19`
+    ## • `` -> `...21`
+    ## • `` -> `...23`
+
+``` r
+table_for_2007 <- table_for_2007[-c(2, 5, 6, 11, 16, 17, 21, 22, 26, 27, 30, 31, 32, 46, 47, 49, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62), ]
+
+names(table_for_2007) <- c("category", "total_in_thousands", "total_anyaid", "se_total_anyaid", "federal_anyaid", "se_federal_anyaid", "nonfederal_anyaid", "se_nonfederal_anyaid", "total_grants", "se_total_grant", "federal_grants", "remove_1", "se_federal_grants", "nonfederal_grants", "se_nonfederal_grants", "total_loans", "se_total_loans", "federal_loans", "se_federal_loans", "nonfederal_loans", "se_nonfederal_loans", "total_workstudy","se_total_workstudy")
+
+table_for_2007 <- table_for_2007[, !names(table_for_2007) %in% "remove_1"]
+
+table_for_2007 <- table_for_2007 %>% mutate(year = "2007-08")
+
+#dataset for gender
+table_for_2007_gender <- table_for_2007[2:3, ]
+
+#dataset for race
+table_for_2007_race <- table_for_2007[4:11, ]
+
+#for age
+table_for_2007_age <- table_for_2007[12:14, ]
+
+#for marital status
+table_for_2007_marital <- table_for_2007[15:17, ]
+
+#for attendance status
+table_for_2007_attendance <- table_for_2007[18:19, ]
+
+#for dependency status and income (income by dependency status)
+table_for_2007_dependency_and_income <- table_for_2007[20:32, ]
+
+#for housing status
+table_for_2007_housing <- table_for_2007[33:35, ]
+
+
+#lets merge everything
+#merge for gender
+merged_2007_through_2022_gender <- bind_rows(merged_2011_through_2022, table_for_2007_gender)
+
+#merge for race/ethnicity
+merge_race_1 <- bind_rows(table_for_2015_race, big_dataset_race)
+merge_race_2 <- bind_rows(merge_race_1, table_for_2011_race)
+merged_2007_through_2020_race <- bind_rows(merge_race_2, table_for_2007_race)
+```
+
+Now that we have merged by gender, lets make some graphs
+
+``` r
+#total loans by gender
+ggplot(merged_2007_through_2022_gender, aes(x = year, y = total_loans, fill = category)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(title = "Percentage of Undergraduates Receiving loans (2007 - 2020)",
+       x = "Year", 
+       y = "% Receiving loans") +
+  theme_minimal()
+```
+
+![](Restructure_big_dataset_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+
+``` r
+#total loans by race
+ggplot(merged_2007_through_2020_race, aes(x = year, y = total_loans, color = category, group = category)) +
+  geom_line(size = 1.2) +  # Creates the lines
+  geom_point(size = 3) +   # Adds points for clarity
+  labs(title = "Student Loan Percentage by Gender (2015 vs 2019)",
+       x = "Year", 
+       y = "Percentage of Student Loans") +
+  theme_minimal()
+```
+
+    ## Warning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
+    ## ℹ Please use `linewidth` instead.
+    ## This warning is displayed once every 8 hours.
+    ## Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
+    ## generated.
+
+![](Restructure_big_dataset_files/figure-gfm/unnamed-chunk-6-2.png)<!-- -->
+
+\#shiny app
+
+Lets create a shiny app where you can look at race over time, choosing
+which year you want to look at.
+
+\###Look at new data set
 
 In the section below I am taking another data set that had all the years
 and different aid for different types of institutions.
@@ -202,4 +437,4 @@ ggplot(timeline_dataset_all_institutions, aes(x = year, y = dollars_student_loan
     ## `geom_line()`: Each group consists of only one observation.
     ## ℹ Do you need to adjust the group aesthetic?
 
-![](Restructure_big_dataset_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
+![](Restructure_big_dataset_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
